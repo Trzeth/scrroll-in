@@ -1,7 +1,7 @@
 import { executeSaveScroll, executeGetScroll } from './contentScripts';
 
 function getUrlWithoutHash(url) {
-  return url.split('?')[0];
+  return url.split('?')[0].split('#')[0].split('?')[0];
 }
 
 const setActiveIcon = () => {

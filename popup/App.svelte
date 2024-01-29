@@ -40,13 +40,13 @@
     });
 
     chrome.storage.local.get("show-toast-notification", (data) => {
-      showToastNotifications  = !!data["show-toast-notification"];
+      showToastNotifications = !!data["show-toast-notification"];
     });
 
     // Check whether the current tab has a saved scrroll or not
     chrome.tabs.query({ active: true, currentWindow: true }, (tabs) => {
       const fullUrl = tabs[0].url;
-      const url = fullUrl.split("?")[0];
+      const url = fullUrl.split("?")[0].split("#")[0].split("?")[0];
       currentTabID = tabs[0].id;
 
       chrome.storage.local.get("scroll-mark", (data) => {
@@ -62,7 +62,7 @@
               if (lastSavedScroll) {
                 const lastSavedScrollID = lastSavedScroll["current-scroll-id"];
                 const index = savedScrolls.findIndex(
-                  (item) => item.uuid === lastSavedScrollID
+                  (item) => item.uuid === lastSavedScrollID,
                 );
                 selectedScrollIndex = index >= 0 ? index : 0;
               }
@@ -114,7 +114,9 @@
 
   function handleShowToastNotificationClick() {
     showToastNotifications = !showToastNotifications;
-    chrome.storage.local.set({ "show-toast-notification": showToastNotifications });
+    chrome.storage.local.set({
+      "show-toast-notification": showToastNotifications,
+    });
   }
 </script>
 
@@ -183,8 +185,16 @@
 </div>
 
 <div class="checkbox-container">
-  <input on:click={handleShowToastNotificationClick} checked={showToastNotifications} id="toast-checkbox" type="checkbox" />
-  <label for="toast-checkbox">Show toast notifications for every action performed with a scrroll (Experimental)</label>
+  <input
+    on:click={handleShowToastNotificationClick}
+    checked={showToastNotifications}
+    id="toast-checkbox"
+    type="checkbox"
+  />
+  <label for="toast-checkbox"
+    >Show toast notifications for every action performed with a scrroll
+    (Experimental)</label
+  >
 </div>
 
 {#if doesCurrentTabHasSavedScroll}
@@ -263,7 +273,9 @@
     width: 120%;
     padding-top: 120%;
 
-    transition: width 0.2s ease-out, padding-top 0.2s ease-out;
+    transition:
+      width 0.2s ease-out,
+      padding-top 0.2s ease-out;
   }
 
   .message {

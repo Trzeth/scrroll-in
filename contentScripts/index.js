@@ -8,8 +8,7 @@ export const executeScript = (tabId, file) => {
 export const MAX_SCROLLS = 20;
 
 export const getURL = () => {
-  const fullUrl = window.location.href;
-  return fullUrl.split('?')[0];
+  return location.protocol + '//' + location.host + location.pathname;
 };
 
 export const getItemFromStorage = name =>
