@@ -77,21 +77,35 @@ chrome.tabs.onUpdated.addListener((tabId, changeInfo) => {
     const url = getUrlWithoutHash(tab.url);
 
     if (url && changeInfo.status === 'complete') {
-      chrome.storage.local.get('scroll-mark', data => {
-        const scrollMarkData = data['scroll-mark'];
-
-        chrome.scripting.insertCSS({
-          target: { tabId },
-          files: ['contentScripts/index.css'],
+      new Promise((resolve, reject) => {
+        chrome.storage.session.get(tabId.toString(), function (r) {
+          if (r[tabId] == url) {
+            reject();
+          } else {
+            resolve();
+          }
         });
+      }).then(
+        () => chrome.storage.local.get('scroll-mark', data => {
+          const scrollMarkData = data['scroll-mark'];
 
-        if (scrollMarkData && scrollMarkData[url] !== undefined) {
-          executeGetScroll(tabId, null, true);
-          setActiveIcon();
-        } else {
-          setInactiveIcon();
-        }
-      });
+          chrome.scripting.insertCSS({
+            target: { tabId },
+            files: ['contentScripts/index.css'],
+          });
+
+          if (scrollMarkData && scrollMarkData[url] !== undefined) {
+            executeGetScroll(tabId, null, true);
+            setActiveIcon();
+
+            var tabIdToUrl = {};
+            tabIdToUrl[tabId.toString()] = url;
+            chrome.storage.session.set(tabIdToUrl);
+          } else {
+            setInactiveIcon();
+          }
+        })
+      ).catch(() => { });
     }
   });
 });
